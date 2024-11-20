@@ -50,3 +50,31 @@ def clean_html(raw_html):
     cleaner.feed(raw_html)
     return cleaner.get_clean_text()
 
+
+class Product:
+    """Class representing product information."""
+
+    def __init__(self, product_id, name, details, images, description):
+        self.product_id = product_id
+        self.name = name.strip().capitalize()
+        self.color = [details.get('Color', '').capitalize()]
+        self.discounted_price = float(details.get('DiscountedPrice', '0').replace(',', '.'))
+        self.is_discounted = self.discounted_price > 0
+        self.price = float(details.get('Price', '0').replace(',', '.'))
+        self.price_unit = 'USD'
+        self.product_type = details.get('ProductType', '')
+        self.quantity = int(details.get('Quantity', '0'))
+        self.series = details.get('Series', '')
+        self.season = details.get('Season', '')  
+        self.status = 'Active' if self.quantity > 0 else 'Inactive'
+        self.fabric = self.extract_detail(description, 'Kumaş Bilgisi:')
+        self.model_measurements = self.extract_detail(description, 'Model Ölçüleri:')
+        self.product_measurements = (
+            self.extract_detail(description, 'Ürün Ölçüleri:') or 
+            self.extract_detail(description, 'Ürün Ölçüleri1:')
+        )
+        self.product_info = self.extract_detail(description, 'Ürün Bilgisi:')
+        self.model_product_info = self.extract_model_product_info(description)
+        self.images = images
+        self.created_at = datetime.utcnow()
+        self.updated_at = datetime.utcnow()
