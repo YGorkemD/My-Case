@@ -230,3 +230,17 @@ class ProductManager:
             print(f"An error occurred while inserting products into MongoDB: {e}")
             raise
 
+if __name__ == "__main__":
+    connection_string = "mongodb+srv://yavuzgorkemd:yavuz33520@cluster0.t1s76.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    db_name = "ProductDB"
+    collection_name = "Products"
+
+    try:
+        manager = ProductManager(connection_string, db_name, collection_name)
+        xml_file = 'xml_file.xml'  # Path to the XML file
+
+        products = manager.parse_xml(xml_file)
+        manager.insert_or_update_products(products)
+        print(f"{len(products)} products were successfully processed and transferred to MongoDB.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
