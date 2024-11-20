@@ -78,3 +78,24 @@ class Product:
         self.images = images
         self.created_at = datetime.utcnow()
         self.updated_at = datetime.utcnow()
+
+    @staticmethod
+    def extract_detail(description, key):
+        """
+        Extracts and cleans information from the description using a given key.
+        
+        Args:
+            description (str): The HTML description string.
+            key (str): The key to search for in the description.
+        
+        Returns:
+            str: The cleaned extracted detail or an empty string if not found.
+        """
+        if key in description:
+            try:
+                # Split the description to extract the value after the key
+                raw_detail = description.split(f'{key}</strong>')[-1].split('</li>')[0].strip()
+                return clean_html(raw_detail)
+            except IndexError:
+                return ""
+        return ""
