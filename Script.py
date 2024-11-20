@@ -99,3 +99,23 @@ class Product:
             except IndexError:
                 return ""
         return ""
+    
+    @staticmethod
+    def extract_model_product_info(description):
+        """
+        Extracts and cleans the model product information from the description.
+        
+        Args:
+            description (str): The HTML description string.
+        
+        Returns:
+            str: The cleaned model product information or an empty string if not found.
+        """
+        key = 'Modelin üzerindeki ürün'
+        if key in description:
+            try:
+                raw_info = description.split(f'{key}')[1].split('</li>')[0].strip()
+                return clean_html(raw_info)
+            except IndexError:
+                return ""
+        return ""
