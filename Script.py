@@ -119,3 +119,30 @@ class Product:
             except IndexError:
                 return ""
         return ""
+
+    def to_dict(self):
+        """Converts the object into a dictionary for MongoDB."""
+        return {
+            '_id': self.product_id,
+            'stock_code': self.product_id,
+            'color': self.color,
+            'discounted_price': self.discounted_price,
+            'is_discounted': self.is_discounted,
+            'price': self.price,
+            'price_unit': self.price_unit,
+            'product_type': self.product_type,
+            'quantity': self.quantity,
+            'series': self.series,
+            'season': self.season,  
+            'status': self.status,
+            'fabric': self.fabric,
+            'model_measurements': self.model_measurements,
+            'product_measurements': self.product_measurements,
+            'product_info': self.product_info,
+            'model_product_info': self.model_product_info,
+            'name': self.name,
+            'images': self.images,
+            'createdAt': self.created_at,
+            'updatedAt': self.updated_at,
+        }
+
