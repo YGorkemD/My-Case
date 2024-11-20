@@ -146,3 +146,87 @@ class Product:
             'updatedAt': self.updated_at,
         }
 
+
+class ProductManager:
+    """Class for managing products."""
+
+    def __init__(self, connection_string, db_name, collection_name):
+        try:
+            self.client = MongoClient(connection_string)
+            self.collection = self.client[db_name][collection_name]
+        except Exception as e:
+            print(f"An error occurred during MongoDB connection: {e}")
+            raise
+
+    def parse_xml(self, xml_file):
+        """
+        Reads the XML file and converts it into product objects.
+        
+        Args:
+            xml_file (str): Path to the XML file.
+        
+        Returns:
+            list: A list of Product objects.
+        """
+        try:
+            tree = ET.parse(xml_file)
+            root = tree.getroot()
+        except FileNotFoundError:
+            print(f"XML file not found: {xml_file}")
+            raise
+        except ET.ParseError:
+            print(f"The XML file has an invalid format: {xml_file}")
+            raise
+        except Exception as e:
+            print(f"An error occurred while processing the XML file: {e}")
+            raise
+
+        products = []
+        try:
+            for product in root.findall('Product'):
+                if product is None:
+                    continue
+                product_id = product.get('ProductId')
+                name = product.get('Name')
+                
+                # Extract images
+                images_elem = product.find('Images')
+                images = [img.get('Path') for img in images_elem.findall('Image')] if images_elem is not None else []
+                
+                # Extract product details
+                details_elem = product.find('ProductDetails')
+                if details_elem is not None:
+                    details = {detail.get('Name'): detail.get('Value') for detail in details_elem.findall('ProductDetail')}
+                else:
+                    details = {}
+                
+                # Extract description
+                description_elem = product.find('Description')
+                description = description_elem.text.strip() if description_elem is not None and description_elem.text else "" 
+                
+                # Create Product object
+                products.append(Product(product_id, name, details, images, description))
+        except Exception as e:
+            print(f"An error occurred while processing products in the XML file: {e}")
+            raise
+
+        return products
+
+    def insert_or_update_products(self, products):
+        """
+        Inserts or updates products in MongoDB.
+        
+        Args:
+            products (list): A list of Product objects.
+        """
+        try:
+            for product in products:
+                self.collection.update_one(
+                    {'_id': product.product_id},  # Field that uniquely identifies the product
+                    {'$set': product.to_dict()},  # Updates or inserts the data
+                    upsert=True                   # Inserts if the data does not exist
+                )
+        except Exception as e:
+            print(f"An error occurred while inserting products into MongoDB: {e}")
+            raise
+
